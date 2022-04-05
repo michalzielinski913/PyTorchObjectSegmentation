@@ -18,8 +18,6 @@ class SegmentationDataset(Dataset):
 		# load the image from disk, swap its channels from BGR to RGB,
 		# and read the associated mask from disk in grayscale mode
 		image = cv2.imread(self.imagePath+imagePath)
-		print(self.imagePath+imagePath)
-		print(self.maskPath+imagePath)
 		mask = cv2.imread(self.maskPath+imagePath, 0)
 		# check to see if we are applying any transformations
 		# return a tuple of the image and its mask

@@ -8,7 +8,6 @@ IMAGE_DIR="F:\\Poles\\Dataset\\Image\\"
 OUTPUT_DIR="F:\\Poles\\Dataset\\Combine\\"
 images = os.listdir(IMAGE_DIR)
 masks  = os.listdir(MASK_DIR)
-print(images)
 
 def loadImage(path):
     if os.path.exists(path):
@@ -28,7 +27,7 @@ def combineMask(paths):
     mask[mask>255]-=255
     return mask
 
-
+image_labels=["_1_", "_2_", "_5"]
 
 for image in images:
     id=image.split(".")[0]
@@ -37,26 +36,14 @@ for image in images:
 
     mask = np.ones(image_color.shape, dtype=np.uint8)
     mask.fill(255)
+    result=mask
+    for label in image_labels:
+        files=[x for x in masks if x.startswith(str(id)+label)]
+        if len(files)!=0:
+            mask_tmp=combineMask(files)
+            mask_tmp[mask_tmp==255]=0
+            result+=mask_tmp
 
-    files=[x for x in masks if x.startswith(str(id)+"_1_")]
-    if len(files)!=0:
-        mask_one=combineMask(files)
-        mask_one[mask_one==255]=0
-
-    files=[x for x in masks if x.startswith(str(id)+"_2_")]
-    mask_two=[0]
-    if len(files)!=0:
-        mask_two=combineMask(files)
-        mask_two[mask_two == 255] = 0
-
-    files=[x for x in masks if x.startswith(str(id)+"_3_")]
-    mask_three=[0]
-    if len(files)!=0:
-        mask_three=combineMask(files)
-        mask_three[mask_three == 255] = 0
-
-
-    result=mask+mask_one+mask_two+mask_three
     result[result>255]-=255
     cv2.imwrite(OUTPUT_DIR+str(id)+".jpg", result)
 
