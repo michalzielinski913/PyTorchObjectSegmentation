@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import json
 import os
+from tqdm import tqdm
 import time
 from shapely.geometry import Point, Polygon
 #Directory with coco images
@@ -48,7 +49,7 @@ def bb_box(points):
 
 #iterate through each annotation
 
-for y in range(0,len(data['annotations'])):
+for y in tqdm(range(0,len(data['annotations']))):
     photo_id = data['annotations'][y]['image_id']
     bbox=np.array([])
     #search for image with include current annotation
@@ -96,7 +97,7 @@ for y in range(0,len(data['annotations'])):
 
             #if polygon is empty fill it with white color, otherwise black
             if roi == True:
-                cv2.fillPoly(mask, np.array([points]), (data['annotations'][y]['category_id'],data['annotations'][y]['category_id'],data['annotations'][y]['category_id']))
+                cv2.fillPoly(mask, np.array([points]), 0)
             else:
                 cv2.fillPoly(mask, np.array([points]), (255,255,255))
             #sum all points of specific coco object
@@ -109,9 +110,11 @@ for y in range(0,len(data['annotations'])):
 
     #apply mask to an image
     #image=cv2.bitwise_or(image, mask)
+    #mask=cv2.bitwise_not(mask)
     #save image
     #for y in range(0,len(data['annotations'])):
     #photo_id = data['annotations'][y]['image_id']
-    cv2.imwrite(outputDir +"Mask/"+str(data['annotations'][y]['image_id'])+"_"+str(data['annotations'][y]['category_id'])+"_"+str(y)+".jpg", mask)
+    cv2.imwrite(outputDir +"Mask/"+str(data['annotations'][y]['image_id'])+"_"+str(data['annotations'][y]['category_id'])+"_"+str(y)+".png", mask)
+
     #cv2.imwrite(outputDir +"Image/"+str(data['annotations'][y]['image_id'])+".jpg", image)
     print("[Log] Saving: " + data['images'][z]['file_name'])
