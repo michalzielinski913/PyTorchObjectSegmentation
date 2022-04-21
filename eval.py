@@ -7,7 +7,7 @@ from Dataset import SegmentationDataset
 import cv2
 import matplotlib.pyplot as plt
 
-MODEL_PATH="checkpoint/checkpoint_sm_1.zip"
+MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 IMAGE_PATH="F:\\Poles\\Dataset\\Image\\"
 MASK_PATH="F:\\Poles\\Dataset\\Combine\\"
 
@@ -64,11 +64,12 @@ print(mask.shape)
 visualize(mask=mask[0][0])
 visualize(mask=mask[0][1])
 visualize(mask=mask[0][2])
-mask[mask>=0.5]=255
-mask[mask<0.5]=0
-
-unique, counts = np.unique(mask, return_counts=True)
+unique, counts = np.unique(mask[0][1], return_counts=True)
 print(list(zip(unique, counts)))
+mask[mask>=0.1]=255
+mask[mask<0.1]=0
+
+
 visualize(mask=mask[0][0])
 visualize(mask=mask[0][1])
 visualize(mask=mask[0][2])
