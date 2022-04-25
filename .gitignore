@@ -8,3 +8,7 @@ Scripts/
 cityscapesscripts/
 
 checkpoint/
+
+models/unet_model/
+
+myplot.png

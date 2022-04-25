@@ -12,22 +12,12 @@ IMAGE_PATH="F:\\Poles\\Dataset\\Image\\"
 MASK_PATH="F:\\Poles\\Dataset\\Combine\\"
 
 IMAGES=["5.jpg"]
-def visualize(**images):
-    """PLot images in one row."""
-    n = len(images)
-    plt.figure(figsize=(16, 5))
-    for i, (name, image) in enumerate(images.items()):
-        plt.subplot(1, n, i + 1)
-        plt.xticks([])
-        plt.yticks([])
-        plt.title(' '.join(name.split('_')).title())
-        plt.imshow(image)
-    plt.show()
+
 INPUT_IMAGE_HEIGHT=512
 INPUT_IMAGE_WIDTH=512
-transform = transforms.Compose([transforms.ToPILImage(),
-                                transforms.Resize((INPUT_IMAGE_HEIGHT,INPUT_IMAGE_WIDTH)),
-	                            transforms.ToTensor()])
+transform = transforms.Compose([transforms.ToTensor(),
+                                 transforms.Resize((INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH)),
+                                 ])
 
 eval_dataset=SegmentationDataset(IMAGE_PATH, MASK_PATH, IMAGES, transform)
 evalLoader=DataLoader(eval_dataset, batch_size=1, shuffle=True)
@@ -49,7 +39,7 @@ if torch.cuda.is_available():
 	model.cuda()
 model.load_state_dict(torch.load(MODEL_PATH))
 mask=None
-x,y=eval_dataset[0]
+
 with torch.no_grad():
     # set the model in evaluation mode
     model.eval()
@@ -60,19 +50,17 @@ with torch.no_grad():
         pred = model(x)
         pred=pred.sigmoid()
         mask=pred.cpu().data.numpy()
-print(mask.shape)
-visualize(mask=mask[0][0])
-visualize(mask=mask[0][1])
-visualize(mask=mask[0][2])
-unique, counts = np.unique(mask[0][1], return_counts=True)
-print(list(zip(unique, counts)))
-mask[mask>=0.1]=255
-mask[mask<0.1]=0
-
-
-visualize(mask=mask[0][0])
-visualize(mask=mask[0][1])
-visualize(mask=mask[0][2])
-cv2.imwrite("test1.png", mask[0][0])
-cv2.imwrite("test2.png", mask[0][1])
-cv2.imwrite("test3.png", mask[0][2])
+visualize(path="test", mask=mask[0][0], image=y[0][0].cpu().data.numpy())
+# visualize(mask=mask[0][1])
+# visualize(mask=mask[0][2])
+# unique, counts = np.unique(mask[0][1], return_counts=True)
+# mask[mask>=0.1]=255
+# mask[mask<0.1]=0
+#
+#
+# visualize(mask=mask[0][0])
+# visualize(mask=mask[0][1])
+# visualize(mask=mask[0][2])
+# cv2.imwrite("test1.png", mask[0][0])
+# cv2.imwrite("test2.png", mask[0][1])
+# cv2.imwrite("test3.png", mask[0][2])

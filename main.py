@@ -20,17 +20,17 @@ else:
     print('Running on the CPU')
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-IMAGE_PATH="F:\\Poles\\Dataset\\Image\\"
-MASK_PATH="F:\\Poles\\Dataset\\Combine\\"
+IMAGE_PATH="F:\\Poles\\Dataset\\Image2\\"
+MASK_PATH="F:\\Poles\\Dataset\\Combine2\\"
 TRAIN_RATIO=0.8
 EPOCHS=20
 LEARNING_RATE = 0.001
 INPUT_IMAGE_HEIGHT=512
 INPUT_IMAGE_WIDTH=512
 files=os.listdir(IMAGE_PATH)
-transforms = transforms.Compose([transforms.ToPILImage(),
+transforms = transforms.Compose([transforms.ToTensor(),
                                 transforms.Resize((INPUT_IMAGE_HEIGHT,INPUT_IMAGE_WIDTH)),
-	                            transforms.ToTensor()])
+	                            ])
 train_size=int(TRAIN_RATIO*len(files))
 
 train_dataset=SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:train_size], transforms)
@@ -44,11 +44,11 @@ model = smp.Unet(
     encoder_name="resnet34",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
     encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
     in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-    classes=3,                      # model output channels (number of classes in your dataset)
+    classes=10,                      # model output channels (number of classes in your dataset)
 )
 if torch.cuda.is_available():
 	model.cuda()
-lossFunc = BCEWithLogitsLoss()
+lossFunc = smp.losses.JaccardLoss(mode='multilabel')
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 
 # loop over epochs

@@ -1,6 +1,8 @@
 # import the necessary packages
 from torch.utils.data import Dataset
 from torchvision.transforms import InterpolationMode
+import pickle
+from skimage.transform import resize
 
 
 import cv2
@@ -26,7 +28,8 @@ class SegmentationDataset(Dataset):
 
 		image = cv2.imread(self.imagePath+imagePath)
 		imagePath = imagePath.replace("jpg", "png")
-		mask = cv2.imread(self.maskPath+imagePath)
+		with open(self.maskPath+imagePath, "rb") as f_in:
+			mask = pickle.load(f_in)
 		if self.transforms is not None:
 			image = self.transforms(image)
 			mask = self.transforms(mask)
