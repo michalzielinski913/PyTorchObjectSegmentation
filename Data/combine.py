@@ -22,7 +22,7 @@ def combineMask(paths):
     real_img=cv2.imread(MASK_DIR+paths[0]).astype("uint8")
     mask = np.ones(real_img.shape, dtype=np.uint8)
     mask.fill(255)
-
+    #Zbadać typ danych w zdjęciu (float?)
     for file in paths:
         img=cv2.imread(MASK_DIR+file)
         mask+=img

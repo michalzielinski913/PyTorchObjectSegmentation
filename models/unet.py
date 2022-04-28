@@ -16,6 +16,8 @@ from utils import *
 from config import *
 
 ###TODO: Rozwiązać kwestię zdjęć testowych
+### Notatka, hardcode listę plików aby każdy model miał taki sam dataset
+
 output_dir="unet_model/"
 
 # If folder doesn't exist, then create it.
@@ -32,9 +34,12 @@ validation_writer = csv.writer(validation_csv_file, delimiter=';')
 validation_writer.writerow(['epoch','batch', 'loss'])
 
 files = os.listdir(IMAGE_PATH)
+
+#Zbadać kwestię interpolacji (upewnić się, że mamy maski binarne po transformacji
 transforms = transforms.Compose([transforms.ToTensor(),
                                  transforms.Resize((INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH)),
                                  ])
+#Pociąć maski zamiast resize, przetestować
 train_size = int(TRAIN_RATIO * len(files))
 
 train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:20], transforms)

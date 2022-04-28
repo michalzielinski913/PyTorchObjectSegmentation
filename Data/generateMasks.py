@@ -51,6 +51,7 @@ for jsonFile in tqdm(jsonList):
     with open(jsonFile, encoding='utf-8') as f:
       data = json.load(f)
     print(jsonFile)
+
 #iterate through each annotation
     for y in (range(0,len(data['annotations']))):
         photo_id = data['annotations'][y]['image_id']
