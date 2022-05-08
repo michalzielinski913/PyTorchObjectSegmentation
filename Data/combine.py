@@ -50,8 +50,8 @@ for image in tqdm(images):
     result=np.array(result)
 
     mask[mask>np.amin(mask)]=255
-    # unique, counts = np.unique(mask, return_counts=True)
-    # print(list(zip(unique, counts)))
+    unique, counts = np.unique(mask, return_counts=True)
+    print(list(zip(unique, counts)))
     #result=cv2.bitwise_not(result)
     with open(OUTPUT_DIR+str(id)+".png", "wb") as f_out:
         pickle.dump(mask, f_out)

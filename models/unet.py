@@ -2,6 +2,8 @@ import torch
 import os
 import csv
 
+import torchvision
+from segmentation_models_pytorch.losses import JaccardLoss
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -34,19 +36,23 @@ validation_writer = csv.writer(validation_csv_file, delimiter=';')
 validation_writer.writerow(['epoch','batch', 'loss'])
 
 files = os.listdir(IMAGE_PATH)
+files=[item for item in files if item not in TEST_IMAGES_FILENAMES]
 
 #Zbadać kwestię interpolacji (upewnić się, że mamy maski binarne po transformacji
 transforms = transforms.Compose([transforms.ToTensor(),
-                                 transforms.Resize((INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH)),
+                                 transforms.Resize((INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH), interpolation=torchvision.transforms.InterpolationMode.NEAREST),
                                  ])
 #Pociąć maski zamiast resize, przetestować
 train_size = int(TRAIN_RATIO * len(files))
 
-train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:20], transforms)
+train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:train_size], transforms)
 train_loader = DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True)
 
-validation_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[21:26], transforms)
+validation_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[train_size:], transforms)
 validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False)
+
+test_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, TEST_IMAGES_FILENAMES, transforms)
+test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 model = smp.Unet(
     encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
@@ -59,13 +65,15 @@ DEVICE = utils.get_device()
 
 if torch.cuda.is_available():
     model.cuda()
-lossFunc = smp.losses.JaccardLoss(mode='multilabel')
+lossFunc = BCEWithLogitsLoss()
+jaccardLoss = JaccardLoss(mode="multilabel")
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")
 
 train_loss=[]
 val_loss=[]
-
+jaccard_train=[]
+jaccard_val=[]
 startTime = time.time()
 for e in tqdm(range(EPOCHS)):
     # set the model in training mode
@@ -73,6 +81,8 @@ for e in tqdm(range(EPOCHS)):
     # initialize the total training and validation loss
     totalTrainLoss = 0
     totalTestLoss = 0
+    totalJaccardTrain=0
+    totalJaccardVal=0
     # loop over the training set
     for (i, (x, y)) in enumerate(train_loader):
         # send the input to the device
@@ -81,14 +91,16 @@ for e in tqdm(range(EPOCHS)):
         # perform a forward pass and calculate the training loss
         pred = model(x)
         loss = lossFunc(pred, y)
-        print("[Train] {}/{}, Loss:{:.3f}".format(i, len(train_loader), loss/TRAIN_BATCH_SIZE))
+        print("[Train] {}/{}, Loss:{:.3f}".format(i, len(train_loader), loss))
         opt.zero_grad()
         loss.backward()
         opt.step()
         totalTrainLoss += loss.cpu().detach().item()
+        totalJaccardTrain += jaccardLoss(pred, y)
         train_writer.writerow([e, i, loss.cpu().detach().item()])
-    epoch_train_loss=totalTrainLoss / (int(len(train_dataset)))
+    epoch_train_loss=totalTrainLoss / (int(len(train_dataset)/TRAIN_BATCH_SIZE))
     train_loss.append(epoch_train_loss)
+    jaccard_train.append(totalJaccardTrain)
     print("Train loss: {:.6f}".format(epoch_train_loss))
     with torch.no_grad():
         # set the model in evaluation mode
@@ -102,22 +114,26 @@ for e in tqdm(range(EPOCHS)):
             loss=lossFunc(pred, y).cpu().detach().item()
             validation_writer.writerow([e, i, loss])
             totalTestLoss += loss
-            print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss/VAL_BATCH_SIZE))
-        epoch_val_loss=totalTestLoss / (int(len(validation_dataset)))
+            totalJaccardVal +=jaccardLoss(pred, y)
+            print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss))
+        epoch_val_loss=totalTestLoss / (int(len(validation_dataset)/VAL_BATCH_SIZE))
         val_loss.append(epoch_val_loss)
+        totalJaccardVal.append(totalJaccardVal)
         print("Test loss avg: {:0.6f}".format(epoch_val_loss))
 
         epoch_dir=output_dir+"/epoch_"+str(e)
         if not os.path.isdir(epoch_dir):
             os.makedirs(epoch_dir)
 
-        for (i, (x, y)) in enumerate(validation_loader):
+        for (i, (x, y)) in enumerate(test_loader):
             # send the input to the device
             (x, y) = (x.to(DEVICE), y.to(DEVICE))
             # make the predictions and calculate the validation loss
             pred = model(x)
+            pred = torch.sigmoid(pred)
             for label in range(len(pred[0])):
                 filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label], RealMask=y.cpu().data.numpy()[0][label])
+                utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
-utils.generate_train_val_plot(output_dir, train_loss, val_loss)
+    utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
+    utils.generate_train_val_plot(output_dir+"jaccard.png", jaccard_train, jaccard_val)

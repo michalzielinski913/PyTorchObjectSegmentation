@@ -3,6 +3,10 @@ import torch
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+
+from config import DETECTION_THRESHOLD
+
+
 def getJSON(dir):
     """
     Get all json files in given directory (including sub directories)
@@ -58,7 +62,8 @@ def generate_train_val_plot(path, train_loss, val_loss):
     plt.title('Training and Validation loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
-    plt.savefig(path+"plot.png")
+    plt.savefig(path)
+    plt.close()
 
 def visualize(filename, **images):
     """
@@ -76,7 +81,8 @@ def visualize(filename, **images):
         plt.title(' '.join(name.split('_')).title())
         if image.shape[0]==3:
             image=np.rollaxis(image, 0, 3)
-
+        # image[image >= DETECTION_THRESHOLD] = 255
+        # image[image < DETECTION_THRESHOLD] = 0
         plt.imshow(image)
     plt.savefig(filename)
     plt.close()

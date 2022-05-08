@@ -30,6 +30,7 @@ class SegmentationDataset(Dataset):
 		imagePath = imagePath.replace("jpg", "png")
 		with open(self.maskPath+imagePath, "rb") as f_in:
 			mask = pickle.load(f_in)
+
 		if self.transforms is not None:
 			image = self.transforms(image)
 			mask = self.transforms(mask)
