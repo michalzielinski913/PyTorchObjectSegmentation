@@ -66,14 +66,11 @@ DEVICE = utils.get_device()
 if torch.cuda.is_available():
     model.cuda()
 lossFunc = BCEWithLogitsLoss()
-jaccardLoss = JaccardLoss(mode="multilabel")
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")
 
 train_loss=[]
 val_loss=[]
-jaccard_train=[]
-jaccard_val=[]
 startTime = time.time()
 for e in tqdm(range(EPOCHS)):
     # set the model in training mode
@@ -81,8 +78,7 @@ for e in tqdm(range(EPOCHS)):
     # initialize the total training and validation loss
     totalTrainLoss = 0
     totalTestLoss = 0
-    totalJaccardTrain=0
-    totalJaccardVal=0
+
     # loop over the training set
     for (i, (x, y)) in enumerate(train_loader):
         # send the input to the device
@@ -96,11 +92,9 @@ for e in tqdm(range(EPOCHS)):
         loss.backward()
         opt.step()
         totalTrainLoss += loss.cpu().detach().item()
-        totalJaccardTrain += jaccardLoss(pred, y)
         train_writer.writerow([e, i, loss.cpu().detach().item()])
     epoch_train_loss=totalTrainLoss / (int(len(train_dataset)/TRAIN_BATCH_SIZE))
     train_loss.append(epoch_train_loss)
-    jaccard_train.append(totalJaccardTrain)
     print("Train loss: {:.6f}".format(epoch_train_loss))
     with torch.no_grad():
         # set the model in evaluation mode
@@ -114,11 +108,9 @@ for e in tqdm(range(EPOCHS)):
             loss=lossFunc(pred, y).cpu().detach().item()
             validation_writer.writerow([e, i, loss])
             totalTestLoss += loss
-            totalJaccardVal +=jaccardLoss(pred, y)
             print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss))
         epoch_val_loss=totalTestLoss / (int(len(validation_dataset)/VAL_BATCH_SIZE))
         val_loss.append(epoch_val_loss)
-        totalJaccardVal.append(totalJaccardVal)
         print("Test loss avg: {:0.6f}".format(epoch_val_loss))
 
         epoch_dir=output_dir+"/epoch_"+str(e)
@@ -136,4 +128,3 @@ for e in tqdm(range(EPOCHS)):
                 utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
-    utils.generate_train_val_plot(output_dir+"jaccard.png", jaccard_train, jaccard_val)

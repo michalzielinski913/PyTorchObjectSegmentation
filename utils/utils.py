@@ -54,7 +54,8 @@ def generate_train_val_plot(path, train_loss, val_loss):
     :param val_loss: avg validation loss on all epochs
     """
     epochs = [*range(0,len(train_loss))]
-    plt.figure(figsize=(int(len(train_loss)/2), 5))
+    x=max(int(len(train_loss)/2), 5)
+    plt.figure(figsize=(x, 5))
     plt.plot(epochs, train_loss, 'b', label='Training loss')
 
 
