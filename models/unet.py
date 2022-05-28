@@ -96,7 +96,6 @@ for e in tqdm(range(EPOCHS)):
         train_writer.writerow([e, i, loss.cpu().detach().item()])
     class_losses = [number / (int(len(train_dataset)/TRAIN_BATCH_SIZE)) for number in class_losses]
     total_class_lossess.append(class_losses)
-    print(total_class_lossess)
     epoch_train_loss=totalTrainLoss / (int(len(train_dataset)/TRAIN_BATCH_SIZE))
     train_loss.append(epoch_train_loss)
     print("Train loss: {:.6f}".format(epoch_train_loss))

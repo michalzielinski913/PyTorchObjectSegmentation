@@ -21,7 +21,7 @@ class SegmentationDataset(Dataset):
 		self.transforms=transform
 	def __len__(self):
 		# return the number of total samples contained in the dataset
-		return len(self.files)
+		return 2*len(self.files)
 	def __getitem__(self, idx):
 		# grab the image path from the current index
 		index=idx//2

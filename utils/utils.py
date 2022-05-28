@@ -78,8 +78,8 @@ def generate_class_loss_plot(path, losses):
 
     epochs = [*range(0,len(losses))]
     losses=list(map(list, zip(*losses)))
-    x=max(int(len(losses)/2), 5)
-    plt.figure(figsize=(x, 15))
+    x=(int(len(losses)/2))
+    plt.figure(figsize=(x, 12))
     for epoch_number, class_losses in enumerate(losses):
         plt.plot(epochs, class_losses, label='Class: {}'.format(epoch_number))
 
