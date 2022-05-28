@@ -69,6 +69,30 @@ def generate_train_val_plot(path, train_loss, val_loss):
     plt.savefig(path)
     plt.close()
 
+def generate_class_loss_plot(path, losses):
+    """
+    Generate plot of train and validation loss and store it in a given location
+    :param path: where data will be stored
+    :param losses: List of loss values
+    """
+
+    epochs = [*range(0,len(losses))]
+    losses=list(map(list, zip(*losses)))
+    x=max(int(len(losses)/2), 5)
+    plt.figure(figsize=(x, 15))
+    for epoch_number, class_losses in enumerate(losses):
+        plt.plot(epochs, class_losses, label='Class: {}'.format(epoch_number))
+
+    plt.xticks(epochs)
+    plt.legend(loc="upper right")
+
+    plt.title('Class loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.savefig(path)
+    plt.close()
+
+
 def visualize(filename, **images):
     """
     Store predicted mask next to real one
@@ -90,3 +114,4 @@ def visualize(filename, **images):
         plt.imshow(image)
     plt.savefig(filename)
     plt.close()
+
