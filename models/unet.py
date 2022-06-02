@@ -70,6 +70,8 @@ train_loss=[]
 val_loss=[]
 startTime = time.time()
 total_class_lossess = []
+total_val_class_lossess = []
+
 for e in tqdm(range(EPOCHS)):
     # set the model in training mode
     model.train()
@@ -77,6 +79,7 @@ for e in tqdm(range(EPOCHS)):
     totalTrainLoss = 0
     totalTestLoss = 0
     class_losses=[0]*NUM_CLASSES
+    val_class_losses=[0]*NUM_CLASSES
 
     # loop over the training set
     for (i, (x, y)) in enumerate(train_loader):
@@ -109,10 +112,14 @@ for e in tqdm(range(EPOCHS)):
             # make the predictions and calculate the validation loss
             pred = model(x)
             loss=lossFunc(pred, y).cpu().detach().item()
+            for class_id in range(NUM_CLASSES):
+                val_class_losses[class_id] += lossFunc_two(pred[:, class_id], y[:, class_id]).cpu().detach().item()
             validation_writer.writerow([e, i, loss])
             totalTestLoss += loss
             print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss))
         epoch_val_loss=totalTestLoss / (int(len(validation_dataset)/VAL_BATCH_SIZE))
+        val_class_losses = [number / (int(len(validation_dataset) / TRAIN_BATCH_SIZE)) for number in val_class_losses]
+        total_val_class_lossess.append(val_class_losses)
         val_loss.append(epoch_val_loss)
         print("Test loss avg: {:0.6f}".format(epoch_val_loss))
 
@@ -132,3 +139,4 @@ for e in tqdm(range(EPOCHS)):
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)
+    utils.generate_class_loss_plot(output_dir+"class_plot_val.png", total_val_class_lossess)

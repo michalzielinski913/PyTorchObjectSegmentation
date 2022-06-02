@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import DETECTION_THRESHOLD
+from config import DETECTION_THRESHOLD, ID_TO_NAME
 
 
 def getJSON(dir):
@@ -77,11 +77,11 @@ def generate_class_loss_plot(path, losses):
     """
 
     epochs = [*range(0,len(losses))]
-    losses=list(map(list, zip(*losses)))
+    losses=list(map(list, zip(*losses))) #Transpose
     x=(int(len(losses)/2))
     plt.figure(figsize=(x, 12))
-    for epoch_number, class_losses in enumerate(losses):
-        plt.plot(epochs, class_losses, label='Class: {}'.format(epoch_number))
+    for class_id, class_losses in enumerate(losses):
+        plt.plot(epochs, class_losses, label='Class: {}, {}'.format(class_id, ID_TO_NAME[class_id]))
 
     plt.xticks(epochs)
     plt.legend(loc="upper right")
@@ -106,7 +106,7 @@ def visualize(filename, **images):
         plt.subplot(1, n, i + 1)
         plt.xticks([])
         plt.yticks([])
-        plt.title(' '.join(name.split('_')).title())
+        plt.title(' '.join(name.split('_')).title()+" "+ID_TO_NAME[i])
         if image.shape[0]==3:
             image=np.rollaxis(image, 0, 3)
         # image[image >= DETECTION_THRESHOLD] = 255
