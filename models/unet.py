@@ -61,7 +61,9 @@ DEVICE = utils.get_device()
 
 if torch.cuda.is_available():
     model.cuda()
-lossFunc = BCEWithLogitsLoss()
+class_weights = torch.ones([11])
+class_weights = torch.reshape(class_weights,(1,11,1,1)).to(device="cuda")
+lossFunc = BCEWithLogitsLoss(pos_weight=class_weights)
 lossFunc_two=BCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")
@@ -89,6 +91,7 @@ for e in tqdm(range(EPOCHS)):
         # perform a forward pass and calculate the training loss
         pred = model(x)
         loss = lossFunc(pred, y)
+
         for class_id in range(NUM_CLASSES):
             class_losses[class_id]+=lossFunc_two(pred[:,class_id],y[:,class_id]).cpu().detach().item()
         print("[Train] {}/{}, Loss:{:.3f}".format(i, len(train_loader), loss))
