@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-from config import DETECTION_THRESHOLD
+from config import DETECTION_THRESHOLD, ID_TO_NAME
 
 
 def getJSON(dir):
@@ -69,6 +69,30 @@ def generate_train_val_plot(path, train_loss, val_loss):
     plt.savefig(path)
     plt.close()
 
+def generate_class_loss_plot(path, losses):
+    """
+    Generate plot of train and validation loss and store it in a given location
+    :param path: where data will be stored
+    :param losses: List of loss values
+    """
+
+    epochs = [*range(0,len(losses))]
+    losses=list(map(list, zip(*losses))) #Transpose
+    x=(int(len(losses)/2))
+    plt.figure(figsize=(x, 12))
+    for class_id, class_losses in enumerate(losses):
+        plt.plot(epochs, class_losses, label='Class: {}, {}'.format(class_id, ID_TO_NAME[class_id]))
+
+    plt.xticks(epochs)
+    plt.legend(loc="upper right")
+
+    plt.title('Class loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.savefig(path)
+    plt.close()
+
+
 def visualize(filename, **images):
     """
     Store predicted mask next to real one
@@ -82,7 +106,7 @@ def visualize(filename, **images):
         plt.subplot(1, n, i + 1)
         plt.xticks([])
         plt.yticks([])
-        plt.title(' '.join(name.split('_')).title())
+        plt.title(' '.join(name.split('_')).title()+" "+ID_TO_NAME[i])
         if image.shape[0]==3:
             image=np.rollaxis(image, 0, 3)
         # image[image >= DETECTION_THRESHOLD] = 255
@@ -90,3 +114,4 @@ def visualize(filename, **images):
         plt.imshow(image)
     plt.savefig(filename)
     plt.close()
+

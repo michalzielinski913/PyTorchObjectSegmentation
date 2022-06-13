@@ -22,3 +22,17 @@ NUM_CLASSES=11
 
 DETECTION_THRESHOLD=0.01
 TEST_IMAGES_FILENAMES=["8200.jpg", "8535.jpg", "8465.jpg", "8459.jpg", "8438.jpg"]
+
+ID_TO_NAME = {
+    0: "Budynek",
+    1: "Drzewo",
+    2: "Pojazd",
+    3: "WieleDrzew",
+    4: "CienieDrzew",
+    5: "Skladowisko",
+    6: "Parking",
+    7: "PryzmaZiemi",
+    8: "Wykop",
+    9: "ZbiornikWodny",
+    10: "ZbiornikWodny",
+}

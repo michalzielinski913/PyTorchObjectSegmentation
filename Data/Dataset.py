@@ -21,17 +21,26 @@ class SegmentationDataset(Dataset):
 		self.transforms=transform
 	def __len__(self):
 		# return the number of total samples contained in the dataset
-		return len(self.files)
+		return 2*len(self.files)
 	def __getitem__(self, idx):
 		# grab the image path from the current index
-		imagePath = self.files[idx]
+		index=idx//2
+		imagePath = self.files[index]
 
 		image = cv2.imread(self.imagePath+imagePath)
 		imagePath = imagePath.replace("jpg", "png")
 		with open(self.maskPath+imagePath, "rb") as f_in:
 			mask = pickle.load(f_in)
 
+
 		if self.transforms is not None:
 			image = self.transforms(image)
 			mask = self.transforms(mask)
+			if idx%2==0:
+				#Dont flip
+				pass
+			else:
+				#Flip
+				image=torch.fliplr(image)
+				mask=torch.fliplr(mask)
 		return (image, mask)
