@@ -41,13 +41,13 @@ transforms = transforms.Compose([transforms.ToTensor(),
 #Pociąć maski zamiast resize, przetestować
 train_size = int(TRAIN_RATIO * len(files))
 
-train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:train_size], transforms)
+train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:5], transforms)
 train_loader = DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True)
 
-validation_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[train_size:], transforms)
+validation_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[train_size:train_size+3], transforms)
 validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False)
 
-test_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, TEST_IMAGES_FILENAMES, transforms)
+test_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, [TEST_IMAGES_FILENAMES[0]], transforms)
 test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 model = smp.Unet(
@@ -138,7 +138,8 @@ for e in tqdm(range(EPOCHS)):
             pred = torch.sigmoid(pred)
             for label in range(len(pred[0])):
                 filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+                utils.test(pred, y)
+                #utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)
