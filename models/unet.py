@@ -59,8 +59,8 @@ DEVICE = utils.get_device()
 
 if torch.cuda.is_available():
     model.cuda()
-class_weights = torch.ones([11])
-class_weights = torch.reshape(class_weights,(1,11,1,1)).to(device="cuda")
+class_weights = torch.ones([10])
+class_weights = torch.reshape(class_weights,(1,10,1,1)).to(device="cuda")
 lossFunc = BCEWithLogitsLoss(pos_weight=class_weights)
 lossFunc_two=BCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
@@ -142,7 +142,7 @@ for e in tqdm(range(EPOCHS)):
             pred = torch.sigmoid(pred)
             for label in range(len(pred[0])):
                 filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+                utils.visualize(filename label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])     
             utils.test("{}/{}_matrix.png".format(epoch_dir, i),pred, y)
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
