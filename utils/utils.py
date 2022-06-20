@@ -93,10 +93,11 @@ def generate_class_loss_plot(path, losses):
     plt.close()
 
 
-def visualize(filename, **images):
+def visualize(filename, label, **images):
     """
     Store predicted mask next to real one
     :param filename:
+    :param label
     :param images:
     :return:
     """
@@ -106,7 +107,7 @@ def visualize(filename, **images):
         plt.subplot(1, n, i + 1)
         plt.xticks([])
         plt.yticks([])
-        plt.title(' '.join(name.split('_')).title()+" "+ID_TO_NAME[i])
+        plt.title(' '.join(name.split('_')).title()+" "+ID_TO_NAME[label])
         if image.shape[0]==3:
             image=np.rollaxis(image, 0, 3)
         # image[image >= DETECTION_THRESHOLD] = 255
