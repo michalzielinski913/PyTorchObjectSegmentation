@@ -12,13 +12,13 @@ class CSV:
         self.writer=csv.writer(self.file, delimiter=';')
         self.writer.writerow(header)
 
-    def write_line(self, element):
+    def writerow(self, element):
         """
         Write given list to csv file, after operaion automaticly flushes buffer
         :param element: List of elelemnts
         """
         self.writer.writerow(element)
-        self.writer.flush()
+        self.file.flush()
 
     def __del__(self):
         """

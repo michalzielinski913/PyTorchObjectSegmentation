@@ -34,5 +34,5 @@ ID_TO_NAME = {
     7: "PryzmaZiemi",
     8: "Wykop",
     9: "ZbiornikWodny",
-    10: "ZbiornikWodny",
+    10: "DzikiParking",
 }
