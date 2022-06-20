@@ -142,8 +142,8 @@ for e in tqdm(range(EPOCHS)):
             pred = torch.sigmoid(pred)
             for label in range(len(pred[0])):
                 filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])     
-            utils.test("{}/{}_matrix.png".format(epoch_dir, i),pred, y)
+                utils.visualize(filename, label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+            utils.confusion_matrix("{}/{}_matrix.png".format(epoch_dir, i),pred, y)
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)

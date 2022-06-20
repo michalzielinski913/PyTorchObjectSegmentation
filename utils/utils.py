@@ -163,26 +163,24 @@ def test_matrix(y_pred, y_true):
     #TP, FN, FP, TN=
 
 
-def test(path, y_pred, y_true):
+def confusion_matrix(path, y_pred, y_true):
     y_pred = y_pred[0].cpu().data.numpy()
     y_true = y_true[0].cpu().data.numpy()
     y_p=DETECTION_THRESHOLD<=y_pred
     y_t=DETECTION_THRESHOLD<=y_true
     Matrix = [[0 for x in range(NUM_CLASSES)] for y in range(NUM_CLASSES)]
 
-    for i in range(11):
+    for i in range(NUM_CLASSES):
         sum=1.0
-        for x in range(11):
+        for x in range(NUM_CLASSES):
             res=np.logical_and(y_p[i], y_t[x])
             count = np.count_nonzero(res)/max(np.count_nonzero(y_p[i]),1)
             Matrix[i][x]=count
             sum=sum-count
-            if i==x:
-                if np.count_nonzero(y_t[i])==0:
-                    Matrix[i][i]=np.count_nonzero(y_p[i]==0)/np.count_nonzero(y_t[i]==0)
-            else:
-                if count>=1:
-                    Matrix[i][x]=0
+            if count>=1:
+                Matrix[i][x]=0
+        if np.count_nonzero(y_t[i]) == 0:
+            Matrix[i][i] = np.count_nonzero(y_p[i]==0)/max(np.count_nonzero(y_t[i]==0), 1)
     df_cm = pd.DataFrame(Matrix, index = ID_TO_NAME.values(),
                       columns =ID_TO_NAME.values())
     plt.figure(figsize = (15,10))
