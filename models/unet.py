@@ -23,10 +23,10 @@ output_dir="unet_model/"
 if not os.path.isdir(output_dir):
     os.makedirs(output_dir)
 
-train_values=CSV(output_dir+"train.csv", ['epoch','batch', 'loss'])
+train_values=CSV(output_dir+"train.csv", ['epoch','batch', 'loss', 'iou', 'f1', 'f2', 'accuracy', 'recall'])
 class_train_values=CSV(output_dir+"train_class.csv", ['epoch', 'batch']+(list(ID_TO_NAME.values())))
 
-validation_values=CSV(output_dir+"validation.csv", ['epoch','batch', 'loss'])
+validation_values=CSV(output_dir+"validation.csv", ['epoch','batch', 'loss', 'iou', 'f1', 'f2', 'accuracy', 'recall'])
 class_val_values=CSV(output_dir+"validation_class.csv", ['epoch', 'batch']+(list(ID_TO_NAME.values())))
 
 files = os.listdir(IMAGE_PATH)
@@ -99,7 +99,8 @@ for e in tqdm(range(EPOCHS)):
         loss.backward()
         opt.step()
         totalTrainLoss += loss.cpu().detach().item()
-        train_values.writerow([e, i, loss.cpu().detach().item()])
+        iou, f1, f2, accuracy, recall=utils.metrics_calculation(pred, y)
+        train_values.writerow([e, i, loss.cpu().detach().item(), iou, f1, f2, accuracy, accuracy])
     class_losses = [number / (int(len(train_dataset)/TRAIN_BATCH_SIZE)) for number in class_losses]
     total_class_lossess.append(class_losses)
     epoch_train_loss=totalTrainLoss / (int(len(train_dataset)/TRAIN_BATCH_SIZE))
@@ -119,7 +120,9 @@ for e in tqdm(range(EPOCHS)):
             for class_id in range(NUM_CLASSES):
                 class_losses_batch[class_id] = lossFunc_two(pred[:, class_id], y[:, class_id]).cpu().detach().item()
                 val_class_losses[class_id] += lossFunc_two(pred[:, class_id], y[:, class_id]).cpu().detach().item()
-            validation_values.writerow([e, i, loss])
+            iou, f1, f2, accuracy, recall = utils.metrics_calculation(pred, y)
+
+            validation_values.writerow([e, i, loss, iou, f1, f2, accuracy, recall])
             class_val_values.writerow([e, i]+(class_losses_batch))
 
             totalTestLoss += loss

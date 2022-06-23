@@ -119,8 +119,13 @@ def visualize(filename, label, **images):
     plt.savefig(filename)
     plt.close()
 
-def confusion_matrix_multi_class(y_pred, y_true):
-    classes=list(ID_TO_NAME.values())
+def metrics_calculation(y_pred, y_true):
+    """
+    Calculate metrics for given predictions
+    :param y_pred: True masks
+    :param y_true: Predicted masks
+    :return: iou score, f1 score, f2 score, accuracy, recall
+    """
     out = (y_pred > DETECTION_THRESHOLD).float()
     input=y_true.to(torch.int32)
     out=out.to(torch.int32)
@@ -130,11 +135,7 @@ def confusion_matrix_multi_class(y_pred, y_true):
     f2_score = smp.metrics.fbeta_score(tp, fp, fn, tn, beta=2, reduction="micro")
     accuracy = smp.metrics.accuracy(tp, fp, fn, tn, reduction="macro")
     recall = smp.metrics.recall(tp, fp, fn, tn, reduction="micro-imagewise")
-    print(iou_score)
-    print(f1_score)
-    print(f2_score)
-    print(accuracy)
-    print(recall)
+    return iou_score.cpu().detach().item(), f1_score.cpu().detach().item(), f2_score.cpu().detach().item(), accuracy.cpu().detach().item(), recall.cpu().detach().item()
 
 def _res_eval(x, y):
     TP = 0
