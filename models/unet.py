@@ -125,7 +125,7 @@ for e in tqdm(range(EPOCHS)):
             totalTestLoss += loss
             print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss))
         epoch_val_loss=totalTestLoss / (int(len(validation_dataset)/VAL_BATCH_SIZE))
-        val_class_losses = [number / (int(len(validation_dataset) / TRAIN_BATCH_SIZE)) for number in val_class_losses]
+        val_class_losses = [number / (int(len(validation_dataset) / VAL_BATCH_SIZE)) for number in val_class_losses]
         total_val_class_lossess.append(val_class_losses)
         val_loss.append(epoch_val_loss)
         print("Test loss avg: {:0.6f}".format(epoch_val_loss))
