@@ -15,6 +15,7 @@ import time
 import segmentation_models_pytorch as smp
 from config import *
 from utils import *
+from utils.csv_file import CSV
 
 output_dir="unet_model/"
 
@@ -22,14 +23,11 @@ output_dir="unet_model/"
 if not os.path.isdir(output_dir):
     os.makedirs(output_dir)
 
+train_values=CSV(output_dir+"train.csv", ['epoch','batch', 'loss'])
+class_train_values=CSV(output_dir+"train_class.csv", ['epoch', 'batch']+(list(ID_TO_NAME.values())))
 
-train_csv_file=open(output_dir+"train.csv", mode='w', newline='')
-train_writer = csv.writer(train_csv_file, delimiter=';')
-train_writer.writerow(['epoch','batch', 'loss'])
-
-validation_csv_file=open(output_dir+"validation.csv", mode='w', newline='')
-validation_writer = csv.writer(validation_csv_file, delimiter=';')
-validation_writer.writerow(['epoch','batch', 'loss'])
+validation_values=CSV(output_dir+"validation.csv", ['epoch','batch', 'loss'])
+class_val_values=CSV(output_dir+"validation_class.csv", ['epoch', 'batch']+(list(ID_TO_NAME.values())))
 
 files = os.listdir(IMAGE_PATH)
 files=[item for item in files if item not in TEST_IMAGES_FILENAMES]
@@ -91,15 +89,17 @@ for e in tqdm(range(EPOCHS)):
         # perform a forward pass and calculate the training loss
         pred = model(x)
         loss = lossFunc(pred, y)
-
+        class_losses_batch = [0] * NUM_CLASSES
         for class_id in range(NUM_CLASSES):
+            class_losses_batch[class_id]=lossFunc_two(pred[:,class_id],y[:,class_id]).cpu().detach().item()
             class_losses[class_id]+=lossFunc_two(pred[:,class_id],y[:,class_id]).cpu().detach().item()
+        class_train_values.writerow([e, i]+(class_losses_batch))
         print("[Train] {}/{}, Loss:{:.3f}".format(i, len(train_loader), loss))
         opt.zero_grad()
         loss.backward()
         opt.step()
         totalTrainLoss += loss.cpu().detach().item()
-        train_writer.writerow([e, i, loss.cpu().detach().item()])
+        train_values.writerow([e, i, loss.cpu().detach().item()])
     class_losses = [number / (int(len(train_dataset)/TRAIN_BATCH_SIZE)) for number in class_losses]
     total_class_lossess.append(class_losses)
     epoch_train_loss=totalTrainLoss / (int(len(train_dataset)/TRAIN_BATCH_SIZE))
@@ -115,9 +115,13 @@ for e in tqdm(range(EPOCHS)):
             # make the predictions and calculate the validation loss
             pred = model(x)
             loss=lossFunc(pred, y).cpu().detach().item()
+            class_losses_batch = [0] * NUM_CLASSES
             for class_id in range(NUM_CLASSES):
+                class_losses_batch[class_id] = lossFunc_two(pred[:, class_id], y[:, class_id]).cpu().detach().item()
                 val_class_losses[class_id] += lossFunc_two(pred[:, class_id], y[:, class_id]).cpu().detach().item()
-            validation_writer.writerow([e, i, loss])
+            validation_values.writerow([e, i, loss])
+            class_val_values.writerow([e, i]+(class_losses_batch))
+
             totalTestLoss += loss
             print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(validation_loader), loss))
         epoch_val_loss=totalTestLoss / (int(len(validation_dataset)/VAL_BATCH_SIZE))
@@ -138,7 +142,8 @@ for e in tqdm(range(EPOCHS)):
             pred = torch.sigmoid(pred)
             for label in range(len(pred[0])):
                 filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename,label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+                utils.visualize(filename, label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+            utils.confusion_matrix("{}/{}_matrix.png".format(epoch_dir, i),pred, y)
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)
