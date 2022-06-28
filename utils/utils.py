@@ -9,6 +9,7 @@ from sklearn.metrics import multilabel_confusion_matrix
 from config import DETECTION_THRESHOLD, ID_TO_NAME, NUM_CLASSES
 import pandas as pd
 import seaborn as sn
+import pandas as pd
 
 def getJSON(dir):
     """
@@ -189,4 +190,41 @@ def confusion_matrix(path, y_pred, y_true):
     fig = plot.get_figure()
 
     fig.savefig(path)
+    plt.close()
+
+def generate_plot(train_csv_path, val_csv_path, metric, save_location):
+    """
+    Generate train validation plot for single metric
+    :param train_csv_path: Path to csv file with train data
+    :param val_csv_path: Path to csv file with validation data
+    :param metric: Which metric should be checked
+    :param save_location: Where to store generated plot
+    """
+    train_df=pd.read_csv(train_csv_path, sep=";")
+    val_df=pd.read_csv(val_csv_path, sep=";")
+    train_data_df=train_df[['epoch', metric]]
+    val_data_df=val_df[['epoch', metric]]
+    epochs=int(train_df[['epoch']].iloc[-1])
+    train_list=[]
+    val_list=[]
+    for epoch in range(epochs+1):
+        train_epoch=train_data_df.loc[train_data_df['epoch']==epoch]
+        val_epoch=val_data_df.loc[val_data_df['epoch']==epoch]
+        train_list.append(train_epoch[metric].mean())
+        val_list.append(val_epoch[metric].mean())
+
+    epochs = [*range(0,len(val_list))]
+    x=max(int(len(epochs)/2),10)
+    plt.figure(figsize=(x, 12))
+
+    plt.plot(epochs, train_list, label='Train {}'.format(metric))
+    plt.plot(epochs, val_list, label='Validation {}'.format(metric))
+
+    plt.xticks(epochs)
+    plt.legend(loc="upper right")
+
+    plt.title('{} loss'.format(metric))
+    plt.xlabel('Epochs')
+    plt.ylabel('Value')
+    plt.savefig(save_location)
     plt.close()
