@@ -120,6 +120,31 @@ def visualize(filename, label, **images):
     plt.savefig(filename)
     plt.close()
 
+def visualize(filename, Image, Prediction, RealMask):
+    """
+    Store predicted mask next to real one in single image for all classes
+    :param filename:
+    :param label
+    :param images:
+    :return:
+    """
+
+    plt.figure(figsize=(16, 55))
+    columns = 3
+    rows = NUM_CLASSES
+    x=0
+    for i in range(1, columns * rows + 1,3):
+        plt.add_subplot(rows, columns, i)
+        plt.imshow(Image[x])
+        plt.add_subplot(rows, columns, i+1)
+        plt.imshow(Prediction[x])
+        plt.add_subplot(rows, columns, i+2)
+        plt.imshow(RealMask[x])
+        x+=1
+    plt.show()
+    plt.savefig(filename)
+    plt.close()
+
 def metrics_calculation(y_pred, y_true):
     """
     Calculate metrics for given predictions

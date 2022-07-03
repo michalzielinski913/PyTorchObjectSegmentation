@@ -143,9 +143,11 @@ for e in tqdm(range(EPOCHS)):
             # make the predictions and calculate the validation loss
             pred = model(x)
             pred = torch.sigmoid(pred)
-            for label in range(len(pred[0])):
-                filename="{}/{}_{}.png".format(epoch_dir, i, label)
-                utils.visualize(filename, label, Image=x[0].cpu().data.numpy(), Prediction=pred.cpu().data.numpy()[0][label].round(), RealMask=y.cpu().data.numpy()[0][label])
+            filename="{}/{}_predictions.png".format(epoch_dir, i)
+            utils.visualize(filename, Image=x[0].cpu().data.numpy(),
+                            Prediction=pred.cpu().data.numpy()[0].round(),
+                            RealMask=y.cpu().data.numpy()[0])
+
             utils.confusion_matrix("{}/{}_matrix.png".format(epoch_dir, i),pred, y)
     torch.save(model.state_dict(), os.path.join(epoch_dir+"/", 'unet_' + str(e) + '.zip'))
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
