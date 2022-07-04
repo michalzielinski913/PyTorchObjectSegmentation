@@ -24,14 +24,14 @@ DETECTION_THRESHOLD=0.5
 TEST_IMAGES_FILENAMES=["8200.jpg", "8535.jpg", "8465.jpg", "8459.jpg", "8438.jpg"]
 
 ID_TO_NAME = {
-    0: "Budynek",
-    1: "Pojazd",
-    2: "CienieDrzew",
-    3: "Skladowisko",
+    0: "Building",
+    1: "Vechicle",
+    2: "Tree's shadow",
+    3: "Landfill",
     4: "Parking",
-    5: "PryzmaZiemi",
-    6: "Wykop",
-    7: "ZbiornikWodny",
-    8: "DzikiParking",
-    9: "WieleDrzew",
+    5: "Heap of earth ",
+    6: "Excavation",
+    7: "WaterContainer",
+    8: "FieldParking",
+    9: "MultipleTrees",
 }

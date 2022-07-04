@@ -8,7 +8,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
-
+import numpy as np
 import utils.utils
 from Data.Dataset import SegmentationDataset
 import time
@@ -59,9 +59,10 @@ DEVICE = utils.get_device()
 
 if torch.cuda.is_available():
     model.cuda()
-class_weights = torch.ones([10])
+weights=np.array([1,1,1,1,1,1,1,0.2,1,1])
+class_weights = torch.from_numpy(weights)
 class_weights = torch.reshape(class_weights,(1,10,1,1)).to(device="cuda")
-lossFunc = BCEWithLogitsLoss(pos_weight=class_weights)
+lossFunc = BCEWithLogitsLoss(weight=class_weights)
 lossFunc_two=BCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")

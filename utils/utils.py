@@ -133,15 +133,20 @@ def visualize(filename, Image, Prediction, RealMask):
     columns = 3
     rows = NUM_CLASSES
     x=0
+
+    if Image.shape[0] == 3:
+        Image = np.rollaxis(Image, 0, 3)
     for i in range(1, columns * rows + 1,3):
-        plt.add_subplot(rows, columns, i)
-        plt.imshow(Image[x])
-        plt.add_subplot(rows, columns, i+1)
+        plt.subplot(rows, columns, i)
+        plt.imshow(Image)
+        plt.title("Image {}".format(ID_TO_NAME[x]))
+        plt.subplot(rows, columns, i+1)
         plt.imshow(Prediction[x])
-        plt.add_subplot(rows, columns, i+2)
+        plt.title("Prediction")
+        plt.subplot(rows, columns, i+2)
         plt.imshow(RealMask[x])
+        plt.title("Real Mask")
         x+=1
-    plt.show()
     plt.savefig(filename)
     plt.close()
 
