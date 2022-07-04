@@ -120,7 +120,7 @@ def visualize(filename, label, **images):
     plt.savefig(filename)
     plt.close()
 
-def visualize(filename, Image, Prediction, RealMask):
+def visualize(filename, Image, Prediction, RealMask=None):
     """
     Store predicted mask next to real one in single image for all classes
     :param filename:
@@ -133,20 +133,34 @@ def visualize(filename, Image, Prediction, RealMask):
     columns = 3
     rows = NUM_CLASSES
     x=0
+    if RealMask is not None:
+        columns = 3
+        if Image.shape[0] == 3:
+            Image = np.rollaxis(Image, 0, 3)
+        for i in range(1, columns * rows + 1,3):
+            plt.subplot(rows, columns, i)
+            plt.imshow(Image)
+            plt.title("Image {}".format(ID_TO_NAME[x]))
+            plt.subplot(rows, columns, i+1)
+            plt.imshow(Prediction[x])
+            plt.title("Prediction")
+            plt.subplot(rows, columns, i+2)
+            plt.imshow(RealMask[x])
+            plt.title("Real Mask")
+            x+=1
+    else:
+        columns=2
+        if Image.shape[0] == 3:
+            Image = np.rollaxis(Image, 0, 3)
+        for i in range(1, columns * rows + 1,2):
+            plt.subplot(rows, columns, i)
+            plt.imshow(Image)
+            plt.title("Image {}".format(ID_TO_NAME[x]))
+            plt.subplot(rows, columns, i+1)
+            plt.imshow(Prediction[x])
+            plt.title("Prediction")
+            x+=1
 
-    if Image.shape[0] == 3:
-        Image = np.rollaxis(Image, 0, 3)
-    for i in range(1, columns * rows + 1,3):
-        plt.subplot(rows, columns, i)
-        plt.imshow(Image)
-        plt.title("Image {}".format(ID_TO_NAME[x]))
-        plt.subplot(rows, columns, i+1)
-        plt.imshow(Prediction[x])
-        plt.title("Prediction")
-        plt.subplot(rows, columns, i+2)
-        plt.imshow(RealMask[x])
-        plt.title("Real Mask")
-        x+=1
     plt.savefig(filename)
     plt.close()
 

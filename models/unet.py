@@ -9,7 +9,6 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 import numpy as np
-import utils.utils
 from Data.Dataset import SegmentationDataset
 import time
 import segmentation_models_pytorch as smp

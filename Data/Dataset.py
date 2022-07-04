@@ -41,3 +41,21 @@ class SegmentationDataset(Dataset):
 
 
 		return (image, mask)
+class Detection(Dataset):
+	def __init__(self, files, transform=None):
+		# store the image and mask filepaths, and augmentation
+		# transforms
+		self.files=files
+		self.transforms=transform
+	def __len__(self):
+		# return the number of total samples contained in the dataset
+		return len(self.files)
+	def __getitem__(self, idx):
+		# grab the image path from the current index
+		imagePath = self.files[idx]
+		image = cv2.imread(imagePath)
+		if self.transforms is not None:
+			image = self.transforms(image)
+
+
+		return (image, image)

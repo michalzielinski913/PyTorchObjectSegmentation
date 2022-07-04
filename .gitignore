@@ -12,3 +12,11 @@ checkpoint/
 models/unet_model/
 
 myplot.png
+
+models/predictions_0.png
+
+*.zip
+
+models/img.jpg
+
+predictions_0.png
