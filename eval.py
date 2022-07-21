@@ -2,10 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 import segmentation_models_pytorch as smp
 from torchvision import transforms
-import numpy as np
-from Dataset import SegmentationDataset
-import cv2
-import matplotlib.pyplot as plt
+from Data.Dataset import SegmentationDataset
 
 MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 IMAGE_PATH="F:\\Poles\\Dataset\\Image\\"

@@ -1,16 +1,13 @@
 import torch
 import os
 
-from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
-from Dataset import SegmentationDataset
+from Data.Dataset import SegmentationDataset
 import time
 import segmentation_models_pytorch as smp
-
-from model.unet import UNet
 
 if torch.cuda.is_available():
     DEVICE = 'cuda:0'

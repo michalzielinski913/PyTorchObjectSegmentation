@@ -17,8 +17,21 @@ EPOCHS=50
 LEARNING_RATE = 0.001
 INPUT_IMAGE_HEIGHT=512
 INPUT_IMAGE_WIDTH=512
-NUM_CLASSES=11
+NUM_CLASSES=10
 
 
-DETECTION_THRESHOLD=0.01
+DETECTION_THRESHOLD=0.5
 TEST_IMAGES_FILENAMES=["8200.jpg", "8535.jpg", "8465.jpg", "8459.jpg", "8438.jpg"]
+
+ID_TO_NAME = {
+    0: "Building",
+    1: "Vechicle",
+    2: "Tree's shadow",
+    3: "Landfill",
+    4: "Parking",
+    5: "Heap of earth ",
+    6: "Excavation",
+    7: "WaterContainer",
+    8: "FieldParking",
+    9: "MultipleTrees",
+}

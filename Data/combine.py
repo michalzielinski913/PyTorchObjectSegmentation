@@ -31,14 +31,14 @@ def combineMask(paths):
 
     return mask
 
-image_labels=["_1_", "_2", "_3_", "_4_", "_5_", "_7_", "_8_", "_9_", "_10_", "_11_", "_12_"]
+image_labels=["_1_", "_3_", "_5_", "_7_", "_8_", "_9_", "_10_", "_11_", "_12_"]
 #images=["101.jpg"]
 for image in tqdm(images):
     id=image.split(".")[0]
 
     image_color=loadImage(IMAGE_DIR+image)
 
-    mask = np.ones((image_color.shape[0], image_color.shape[1], 11), dtype=np.uint8)
+    mask = np.ones((image_color.shape[0], image_color.shape[1], 10), dtype=np.uint8)
     mask.fill(0)
     result=[]
     for index, label in enumerate(image_labels):
@@ -46,12 +46,20 @@ for image in tqdm(images):
         if len(files)!=0:
             mask_tmp=combineMask(files)
             mask[:,:,index]=(mask_tmp[:,:,0])
-
-    result=np.array(result)
+    trees=["_2_", "_4_"]
+    result=[]
+    for index, label in enumerate(trees):
+        files = [x for x in masks if x.startswith(str(id) + label)]
+        result=result+(files)
+    if len(result) != 0:
+        #print(result)
+        mask_tmp = combineMask(result)
+        mask[:, :, 9] = (mask_tmp[:, :, 0])
+    #result=np.array(result)
 
     mask[mask>np.amin(mask)]=255
     unique, counts = np.unique(mask, return_counts=True)
-    print(list(zip(unique, counts)))
+    #print(list(zip(unique, counts)))
     #result=cv2.bitwise_not(result)
     with open(OUTPUT_DIR+str(id)+".png", "wb") as f_out:
         pickle.dump(mask, f_out)
