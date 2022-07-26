@@ -1,8 +1,8 @@
 
 
 ### Paths ###
-IMAGE_PATH="F:\\Poles\\Dataset\\Image2\\"
-MASK_PATH="F:\\Poles\\Dataset\\Combine2\\"
+IMAGE_PATH="G:\\Dataset\\Image2\\"
+MASK_PATH="G:\\Dataset\\Combine2\\"
 MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 OUTPUT_PATH="output/"
 
