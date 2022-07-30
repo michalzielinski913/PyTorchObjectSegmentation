@@ -13,7 +13,7 @@ from Data.Dataset import SegmentationDataset
 import time
 import segmentation_models_pytorch as smp
 from config import *
-from utils import *
+from utils import utils
 from utils.csv_file import CSV
 
 output_dir="unet_model/"
@@ -28,23 +28,21 @@ class_train_values=CSV(output_dir+"train_class.csv", ['epoch', 'batch']+(list(ID
 validation_values=CSV(output_dir+"validation.csv", ['epoch','batch', 'loss', 'iou', 'f1', 'f2', 'accuracy', 'recall'])
 class_val_values=CSV(output_dir+"validation_class.csv", ['epoch', 'batch']+(list(ID_TO_NAME.values())))
 
-files = os.listdir(IMAGE_PATH)
-files=[item for item in files if item not in TEST_IMAGES_FILENAMES]
+
 
 #Zbadać kwestię interpolacji (upewnić się, że mamy maski binarne po transformacji
 transforms = transforms.Compose([transforms.ToTensor(),
                                  transforms.Resize((INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH), interpolation=torchvision.transforms.InterpolationMode.NEAREST),
                                  ])
-#Pociąć maski zamiast resize, przetestować
-train_size = int(TRAIN_RATIO * len(files))
 
-train_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[0:train_size], transforms)
+train_dataset = SegmentationDataset(IMAGE_TRAIN_PATH, transforms)
 train_loader = DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True)
 
-validation_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, files[train_size:], transforms)
+validation_dataset = SegmentationDataset(IMAGE_VALIDATION_PATH, transforms)
 validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False)
 
-test_dataset = SegmentationDataset(IMAGE_PATH, MASK_PATH, TEST_IMAGES_FILENAMES, transforms)
+
+test_dataset = SegmentationDataset(IMAGE_TEST_PATH, transforms)
 test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
 model = smp.Unet(
@@ -58,10 +56,9 @@ DEVICE = utils.get_device()
 
 if torch.cuda.is_available():
     model.cuda()
-weights=np.array([1,1,1,1,1,1,1,0.2,1,1])
-class_weights = torch.from_numpy(weights)
-class_weights = torch.reshape(class_weights,(1,10,1,1)).to(device="cuda")
-lossFunc = BCEWithLogitsLoss(weight=class_weights)
+
+
+lossFunc = BCEWithLogitsLoss()
 lossFunc_two=BCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")

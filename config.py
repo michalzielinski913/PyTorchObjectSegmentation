@@ -1,8 +1,12 @@
 
 
 ### Paths ###
-IMAGE_PATH="G:\\Dataset\\Image2\\"
-MASK_PATH="G:\\Dataset\\Combine2\\"
+IMAGE_TRAIN_PATH="G:\\Dataset\\Split\\Train\\split\\"
+
+IMAGE_VALIDATION_PATH="G:\\Dataset\\Split\\Validation\\split\\"
+
+IMAGE_TEST_PATH="G:\\Dataset\\Split\\Test\\split\\"
+
 MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 OUTPUT_PATH="output/"
 
