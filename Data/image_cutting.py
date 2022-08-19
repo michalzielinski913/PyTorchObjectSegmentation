@@ -47,17 +47,17 @@ class ImageGenerator:
         :return: indexes of choosen images
         """
         indexes=(np.argsort(scores))
-        return [indexes[-1], indexes[-2], indexes[-3], indexes[-9], indexes[-10]]
+        return indexes[0:10]
 
 if __name__=="__main__":
     import os
     import cv2
     import pickle
-    files = os.listdir("G:\Dataset\Split\Validation\IMG")
-    SAVE_PATH="G:\\Dataset\\Split\\Validation\\split"
+    files = os.listdir("G:\Dataset\Split\Train\IMG")
+    SAVE_PATH="G:\\Dataset\\Split\\Train\\split"
     gen=ImageGenerator()
-    IMAGE_PATH_TEST="G:\\Dataset\\Split\\Validation\\IMG\\"
-    MASK_PATH_TEST="G:\\Dataset\\Split\\Validation\\MASK\\"
+    IMAGE_PATH_TEST="G:\\Dataset\\Split\\Train\\IMG\\"
+    MASK_PATH_TEST="G:\\Dataset\\Split\\Train\\MASK\\"
     for file in tqdm(files):
         img=cv2.imread(IMAGE_PATH_TEST+file)
         with open(MASK_PATH_TEST + file.replace("jpg", "png"), "rb") as f_in:
@@ -65,7 +65,7 @@ if __name__=="__main__":
         mask_list=[]
         img_list=[]
         score_list=[]
-        for i in range(15):
+        for i in range(50):
             start, stop=gen.get_cut_coordinates(img)
             new_img=gen.cut_img(img, start, stop)
             new_mask=gen.cut_img(mask, start, stop)
