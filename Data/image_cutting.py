@@ -1,6 +1,12 @@
 import random
 import numpy as np
 from tqdm import tqdm
+import os
+import cv2
+import pickle
+from config import weights
+
+
 class ImageGenerator:
     def get_cut_coordinates(self, img, size=(1024, 1024)):
         """
@@ -37,7 +43,8 @@ class ImageGenerator:
         score=0.0
         for img_class in range(classes):
             mask_channel=mask[:,:,img_class]
-            score+=np.count_nonzero(mask_channel)/mask_channel.size
+            weight=1-weights[img_class]
+            score+=np.count_nonzero(mask_channel)/mask_channel.size*weight
         return score
 
     def select_images(self, scores):
@@ -49,18 +56,16 @@ class ImageGenerator:
         indexes=(np.argsort(scores))
         return indexes[0:10]
 
-if __name__=="__main__":
-    import os
-    import cv2
-    import pickle
-    files = os.listdir("G:\Dataset\Split\Train\IMG")
-    SAVE_PATH="G:\\Dataset\\Split\\Train\\split"
+def split_and_save(source_img, source_mask, destination):
+    files = os.listdir(source_img)
     gen=ImageGenerator()
-    IMAGE_PATH_TEST="G:\\Dataset\\Split\\Train\\IMG\\"
-    MASK_PATH_TEST="G:\\Dataset\\Split\\Train\\MASK\\"
+    if(os.path.exists(destination)):
+        pass
+    else:
+        os.makedirs(destination)
     for file in tqdm(files):
-        img=cv2.imread(IMAGE_PATH_TEST+file)
-        with open(MASK_PATH_TEST + file.replace("jpg", "png"), "rb") as f_in:
+        img=cv2.imread(source_img+"\\"+file)
+        with open(source_mask +"\\"+ file.replace("jpg", "png"), "rb") as f_in:
             mask = pickle.load(f_in)
         mask_list=[]
         img_list=[]
@@ -73,8 +78,10 @@ if __name__=="__main__":
             img_list.append(new_img)
             score_list.append(gen.evaluate_score(new_mask))
         for choosen_file_indexes in gen.select_images(score_list):
-            cv2.imwrite(SAVE_PATH+"\\"+str(choosen_file_indexes)+"_"+file, img_list[choosen_file_indexes])
-            with open(SAVE_PATH+"\\m_"+str(choosen_file_indexes)+"_"+file, "wb") as f_out:
+            cv2.imwrite(destination+"\\"+str(choosen_file_indexes)+"_"+file, img_list[choosen_file_indexes])
+            with open(destination+"\\m_"+str(choosen_file_indexes)+"_"+file, "wb") as f_out:
                 pickle.dump(mask_list[choosen_file_indexes], f_out)
-            #print("Saving {} with score {:5f}".format(file, score_list[choosen_file_indexes]))
 
+if __name__=="__main__":
+    split_and_save("G:\Dataset\Split\Train\IMG", "G:\Dataset\Split\Train\MASK", "G:\Dataset\SplitWeight\Train")
+    split_and_save("G:\Dataset\Split\Validation\IMG", "G:\Dataset\Split\Validation\MASK", "G:\Dataset\SplitWeight\Validation")
