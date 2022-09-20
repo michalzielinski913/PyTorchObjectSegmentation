@@ -3,7 +3,7 @@ import os
 import csv
 
 import torchvision
-from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss
+from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -17,7 +17,7 @@ from models.functions import training_loop, validation_loop, test_loop
 from utils import utils
 from utils.csv_file import CSV
 
-output_dir="unet_model/"
+output_dir="deeplabv3plus_model/"
 
 # If folder doesn't exist, then create it.
 if not os.path.isdir(output_dir):
@@ -46,7 +46,7 @@ validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, sh
 test_dataset = SegmentationDataset(IMAGE_TEST_PATH, transforms)
 test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
-model = smp.Unet(
+model = smp.DeepLabV3Plus(
     encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
     encoder_weights="imagenet",  # use `imagenet` pre-trained weights for encoder initialization
     in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
@@ -59,9 +59,10 @@ if torch.cuda.is_available():
     model.cuda()
 
 
-lossFunc = CrossEntropyLoss()
+lossFunc = BCEWithLogitsLoss()
+lossFunc_two=BCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
-print("[INFO] training UNET...")
+print("[INFO] training DeepLabV3Plus...")
 
 train_loss=[]
 val_loss=[]
@@ -72,7 +73,7 @@ total_val_class_lossess = []
 for e in tqdm(range(EPOCHS)):
     training_loop(model, opt, lossFunc, train_loader, DEVICE, e, train_values, class_train_values, total_class_lossess, train_loss)
     validation_loop(model, validation_loader, lossFunc, DEVICE, e, validation_values, class_val_values, total_val_class_lossess, val_loss)
-    test_loop(model, test_loader, DEVICE, output_dir, e, "unet")
+    test_loop(model, test_loader, DEVICE, output_dir, e, "deeplabv3plus")
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)
     utils.generate_class_loss_plot(output_dir+"class_plot_val.png", total_val_class_lossess)
