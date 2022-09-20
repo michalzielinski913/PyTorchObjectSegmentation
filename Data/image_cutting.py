@@ -59,6 +59,7 @@ class ImageGenerator:
 def split_and_save(source_img, source_mask, destination):
     files = os.listdir(source_img)
     gen=ImageGenerator()
+    sizes=[]
     if(os.path.exists(destination)):
         pass
     else:
@@ -71,7 +72,14 @@ def split_and_save(source_img, source_mask, destination):
         img_list=[]
         score_list=[]
         for i in range(50):
-            start, stop=gen.get_cut_coordinates(img)
+            rand=random.uniform(0, 1)
+            if rand<=0.7:
+                size=(1024, 1024)
+            elif rand <0.85:
+                size=(512, 512)
+            else:
+                size=(1536, 1536)
+            start, stop=gen.get_cut_coordinates(img, size)
             new_img=gen.cut_img(img, start, stop)
             new_mask=gen.cut_img(mask, start, stop)
             mask_list.append(new_mask)
@@ -81,7 +89,10 @@ def split_and_save(source_img, source_mask, destination):
             cv2.imwrite(destination+"\\"+str(choosen_file_indexes)+"_"+file, img_list[choosen_file_indexes])
             with open(destination+"\\m_"+str(choosen_file_indexes)+"_"+file, "wb") as f_out:
                 pickle.dump(mask_list[choosen_file_indexes], f_out)
+            sizes.append(img_list[choosen_file_indexes].shape[0])
+    solution = {i: sizes.count(i) for i in set(sizes)}
+    print(solution)
 
 if __name__=="__main__":
-    split_and_save("G:\Dataset\Split\Train\IMG", "G:\Dataset\Split\Train\MASK", "G:\Dataset\SplitWeight\Train")
+    #split_and_save("G:\Dataset\Split\Train\IMG", "G:\Dataset\Split\Train\MASK", "G:\Dataset\SplitWeight\Train")
     split_and_save("G:\Dataset\Split\Validation\IMG", "G:\Dataset\Split\Validation\MASK", "G:\Dataset\SplitWeight\Validation")

@@ -67,3 +67,4 @@ class Detection(Dataset):
             image = self.transforms(image)
 
         return (image, image)
+
