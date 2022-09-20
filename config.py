@@ -1,8 +1,12 @@
 
 
 ### Paths ###
-IMAGE_PATH="F:\\Poles\\Dataset\\Image2\\"
-MASK_PATH="F:\\Poles\\Dataset\\Combine2\\"
+IMAGE_TRAIN_PATH="G:\\Dataset\\Split\\Train\\split\\"
+
+IMAGE_VALIDATION_PATH="G:\\Dataset\\Split\\Validation\\split\\"
+
+IMAGE_TEST_PATH="G:\\Dataset\\Split\\Test\\split\\"
+
 MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 OUTPUT_PATH="output/"
 
@@ -14,7 +18,7 @@ VAL_BATCH_SIZE=1
 
 ### Model settings ###
 EPOCHS=50
-LEARNING_RATE = 0.001
+LEARNING_RATE = 3e-4
 INPUT_IMAGE_HEIGHT=512
 INPUT_IMAGE_WIDTH=512
 NUM_CLASSES=10
@@ -35,3 +39,7 @@ ID_TO_NAME = {
     8: "FieldParking",
     9: "MultipleTrees",
 }
+weights=[0.07483616762765963, 0.008097443249571665, 0.03202202847785415,
+         0.0069094190951764336, 0.021538575417153694, 0.0031336600639177894,
+         0.0027782101129408873, 0.030316505159090335, 0.0012672049540087675,
+         0.18351584865615084]
