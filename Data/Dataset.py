@@ -26,21 +26,17 @@ class SegmentationDataset(Dataset):
 
     def __len__(self):
         # return the number of total samples contained in the dataset
-        return 4 * len(self.files)
+        return len(self.files)
 
     def __getitem__(self, idx):
         # grab the image path from the current index
-        index = idx // 4
-        imagePath = self.files[index]
+
+        imagePath = self.files[idx]
 
         image = cv2.imread(self.imagePath + imagePath)
 
         with open(self.imagePath + "m_" + imagePath, "rb") as f_in:
             mask = pickle.load(f_in)
-
-        rotation = idx % 4
-        image = np.rot90(image, rotation).copy()
-        mask = np.rot90(mask, rotation).copy()
         if self.transforms is not None:
             image = self.transforms(image)
             mask = self.transforms(mask)

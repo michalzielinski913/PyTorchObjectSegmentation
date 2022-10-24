@@ -1,11 +1,11 @@
 
 
 ### Paths ###
-IMAGE_TRAIN_PATH="G:\\Dataset\\Split\\Train\\split\\"
+IMAGE_TRAIN_PATH="C:\Dataset\SplitWeight\\Train\\"
 
-IMAGE_VALIDATION_PATH="G:\\Dataset\\Split\\Validation\\split\\"
+IMAGE_VALIDATION_PATH="C:\Dataset\SplitWeight\\Validation\\"
 
-IMAGE_TEST_PATH="G:\\Dataset\\Split\\Test\\split\\"
+IMAGE_TEST_PATH="C:\\Dataset\\Split\\Test\\"
 
 MODEL_PATH="checkpoint/checkpoint_sm_15.zip"
 OUTPUT_PATH="output/"
@@ -17,10 +17,10 @@ TRAIN_BATCH_SIZE=4
 VAL_BATCH_SIZE=1
 
 ### Model settings ###
-EPOCHS=50
+EPOCHS=25
 LEARNING_RATE = 3e-4
-INPUT_IMAGE_HEIGHT=512
-INPUT_IMAGE_WIDTH=512
+INPUT_IMAGE_HEIGHT=1024
+INPUT_IMAGE_WIDTH=1024
 NUM_CLASSES=10
 
 
@@ -37,7 +37,7 @@ ID_TO_NAME = {
     6: "Excavation",
     7: "WaterContainer",
     8: "FieldParking",
-    9: "MultipleTrees",
+    9: "MultipleTrees"
 }
 weights=[0.07483616762765963, 0.008097443249571665, 0.03202202847785415,
          0.0069094190951764336, 0.021538575417153694, 0.0031336600639177894,

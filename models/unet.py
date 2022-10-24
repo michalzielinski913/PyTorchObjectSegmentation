@@ -1,6 +1,7 @@
 import torch
 import os
 import csv
+from segmentation_models_pytorch.losses import DiceLoss, JaccardLoss, LovaszLoss, SoftBCEWithLogitsLoss
 
 import torchvision
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss
@@ -59,7 +60,7 @@ if torch.cuda.is_available():
     model.cuda()
 
 
-lossFunc = CrossEntropyLoss()
+lossFunc = DiceLoss(mode='multilabel')
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training UNET...")
 

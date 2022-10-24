@@ -3,6 +3,7 @@ import os
 import csv
 
 import torchvision
+from segmentation_models_pytorch.losses import DiceLoss, JaccardLoss, LovaszLoss, SoftBCEWithLogitsLoss
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -37,10 +38,10 @@ transforms = transforms.Compose([transforms.ToTensor(),
                                  ])
 
 train_dataset = SegmentationDataset(IMAGE_TRAIN_PATH, transforms)
-train_loader = DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=TRAIN_BATCH_SIZE, shuffle=True, pin_memory=True)
 
 validation_dataset = SegmentationDataset(IMAGE_VALIDATION_PATH, transforms)
-validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False)
+validation_loader = DataLoader(validation_dataset, batch_size=VAL_BATCH_SIZE, shuffle=False, pin_memory=True)
 
 
 test_dataset = SegmentationDataset(IMAGE_TEST_PATH, transforms)
@@ -59,8 +60,7 @@ if torch.cuda.is_available():
     model.cuda()
 
 
-lossFunc = BCEWithLogitsLoss()
-lossFunc_two=BCEWithLogitsLoss()
+lossFunc = SoftBCEWithLogitsLoss()
 opt = Adam(model.parameters(), lr=LEARNING_RATE)
 print("[INFO] training DeepLabV3Plus...")
 
