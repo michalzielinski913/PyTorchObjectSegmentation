@@ -3,7 +3,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 
-from config import NUM_CLASSES, TRAIN_BATCH_SIZE
+from config import NUM_CLASSES, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE
 from utils import utils
 from utils.csv_file import CSV
 
@@ -37,7 +37,7 @@ def training_loop(model, optimizer, loss_function, loader: DataLoader, DEVICE: s
         train_values.writerow([epoch_number, i, loss.cpu().detach().item(), iou, f1, f2, accuracy, accuracy])
     class_losses = [number / (int(len(loader))) for number in class_losses]
     total_class_lossess.append(class_losses)
-    epoch_train_loss=totalTrainLoss / (int(len(loader)))
+    epoch_train_loss=totalTrainLoss / (int(len(loader)/TRAIN_BATCH_SIZE))
     train_loss.append(epoch_train_loss)
     print("Train loss: {:.6f}".format(epoch_train_loss))
 
@@ -67,7 +67,7 @@ def validation_loop(model, loader, loss_function, DEVICE: str, epoch_number: int
 
             totalTestLoss += loss
             print("[Validation] {}/{}, Loss:{:.3f}".format(i, len(loader), loss))
-        epoch_val_loss=totalTestLoss / (int(len(loader)))
+        epoch_val_loss=totalTestLoss / (int(len(loader)/VAL_BATCH_SIZE))
         val_class_losses = [number / (int(len(loader))) for number in val_class_losses]
         total_val_class_lossess.append(val_class_losses)
         val_loss.append(epoch_val_loss)
