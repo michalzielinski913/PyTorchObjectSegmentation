@@ -77,3 +77,4 @@ for e in tqdm(range(EPOCHS)):
     utils.generate_train_val_plot(output_dir+"plot.png", train_loss, val_loss)
     utils.generate_class_loss_plot(output_dir+"class_plot.png", total_class_lossess)
     utils.generate_class_loss_plot(output_dir+"class_plot_val.png", total_val_class_lossess)
+output_dir()

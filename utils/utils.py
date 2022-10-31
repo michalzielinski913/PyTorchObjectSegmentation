@@ -272,3 +272,14 @@ def generate_plot(train_csv_path, val_csv_path, metric, save_location):
     plt.ylabel('Value')
     plt.savefig(save_location)
     plt.close()
+
+def generate_metric_plots(path):
+    """
+    Generate metric plots for iou f1, f2, accuracy, recall.
+    :param path: Path to training folder, It must contain train and validation CSV files
+    Generated plots are stored in training folder as {metric}.jpg
+    """
+    metrics = ['iou', 'f1', 'f2', 'accuracy', 'recall']
+
+    for metric in metrics:
+        generate_plot(train_csv_path=path + "train.csv", val_csv_path=path + "validation.csv", metric=metric, save_location=path + metric + ".jpg")

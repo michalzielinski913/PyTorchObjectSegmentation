@@ -24,3 +24,5 @@ predictions_0.png
 models/deeplabv3_model/
 
 models/deeplabv3plus_model/
+
+utils/secret.py
