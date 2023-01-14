@@ -5,9 +5,9 @@ import pickle
 
 import numpy as np
 from tqdm import tqdm
-MASK_DIR="F:\\Poles\\Dataset\\Mask2\\"
-IMAGE_DIR="F:\\Poles\\Dataset\\Image2\\"
-OUTPUT_DIR="F:\\Poles\\Dataset\\Combine2\\"
+MASK_DIR="C:\\Dataset\\Mask2\\"
+IMAGE_DIR="C:\\Dataset\\Image2\\"
+OUTPUT_DIR="C:\\Dataset\\Combine2\\"
 images = os.listdir(IMAGE_DIR)
 masks  = os.listdir(MASK_DIR)
 
@@ -33,12 +33,13 @@ def combineMask(paths):
 
 image_labels=["_1_", "_3_", "_5_", "_7_", "_8_", "_9_", "_10_", "_11_", "_12_"]
 #images=["101.jpg"]
+TEST_IMAGES_FILENAMES=["8200.jpg", "8535.jpg", "8465.jpg", "8459.jpg", "8438.jpg"]
+
 for image in tqdm(images):
     id=image.split(".")[0]
-
     image_color=loadImage(IMAGE_DIR+image)
 
-    mask = np.ones((image_color.shape[0], image_color.shape[1], 10), dtype=np.uint8)
+    mask = np.ones((image_color.shape[0], image_color.shape[1], len(image_labels)+1), dtype=np.uint8)
     mask.fill(0)
     result=[]
     for index, label in enumerate(image_labels):
@@ -61,9 +62,9 @@ for image in tqdm(images):
     unique, counts = np.unique(mask, return_counts=True)
     #print(list(zip(unique, counts)))
     #result=cv2.bitwise_not(result)
+    print(mask.shape)
     with open(OUTPUT_DIR+str(id)+".png", "wb") as f_out:
         pickle.dump(mask, f_out)
-    #cv2.imwrite(OUTPUT_DIR+str(id)+".png", mask)
 
 
 

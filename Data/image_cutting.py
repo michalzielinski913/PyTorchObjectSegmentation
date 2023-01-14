@@ -1,11 +1,12 @@
 import random
+import shutil
+
 import numpy as np
 from tqdm import tqdm
 import os
 import cv2
 import pickle
 from config import weights
-
 
 class ImageGenerator:
     def get_cut_coordinates(self, img, size=(1024, 1024)):
@@ -44,7 +45,7 @@ class ImageGenerator:
         for img_class in range(classes):
             mask_channel=mask[:,:,img_class]
             weight=1-weights[img_class]
-            score+=np.count_nonzero(mask_channel)/mask_channel.size*weight
+            score+=np.count_nonzero(mask_channel)/mask_channel.size
         return score
 
     def select_images(self, scores):
@@ -54,7 +55,7 @@ class ImageGenerator:
         :return: indexes of choosen images
         """
         indexes=(np.argsort(scores))
-        return indexes[0:10]
+        return indexes[0:5]
 
 def split_and_save(source_img, source_mask, destination):
     files = os.listdir(source_img)
@@ -71,28 +72,39 @@ def split_and_save(source_img, source_mask, destination):
         mask_list=[]
         img_list=[]
         score_list=[]
-        for i in range(50):
-            rand=random.uniform(0, 1)
-            if rand<=0.7:
-                size=(1024, 1024)
-            elif rand <0.85:
-                size=(512, 512)
-            else:
-                size=(1536, 1536)
-            start, stop=gen.get_cut_coordinates(img, size)
-            new_img=gen.cut_img(img, start, stop)
-            new_mask=gen.cut_img(mask, start, stop)
-            mask_list.append(new_mask)
-            img_list.append(new_img)
-            score_list.append(gen.evaluate_score(new_mask))
-        for choosen_file_indexes in gen.select_images(score_list):
-            cv2.imwrite(destination+"\\"+str(choosen_file_indexes)+"_"+file, img_list[choosen_file_indexes])
-            with open(destination+"\\m_"+str(choosen_file_indexes)+"_"+file, "wb") as f_out:
-                pickle.dump(mask_list[choosen_file_indexes], f_out)
-            sizes.append(img_list[choosen_file_indexes].shape[0])
-    solution = {i: sizes.count(i) for i in set(sizes)}
-    print(solution)
+        # for i in range(20):
+        #     rand=random.uniform(0, 1)
+        #     if rand<=0.7:
+        #         size=(1024, 1024)
+        #     elif rand <0.85:
+        #         size=(512, 512)
+        #     else:
+        #         size=(1536, 1536)
+        #     start, stop=gen.get_cut_coordinates(img, size)
+        #     new_img=gen.cut_img(img, start, stop)
+        #     new_mask=gen.cut_img(mask, start, stop)
+        #     mask_list.append(new_mask)
+        #     img_list.append(new_img)
+        #     score_list.append(gen.evaluate_score(new_mask))
+        #for choosen_file_indexes in gen.select_images(score_list):
+        for idx in range(4):
+
+            image = np.rot90(img, idx).copy()
+            masks = np.rot90(mask, idx).copy()
+            cv2.imwrite(destination+"\\"+str(idx)+"_"+file, image)
+            with open(destination+"\\m_"+str(idx)+"_"+file, "wb") as f_out:
+                pickle.dump(masks, f_out)
+
+def prepare_test_set(mask_path, output):
+    files = os.listdir(mask_path)
+    for file in files:
+        new_file="m_"+file.replace(".png", ".jpg")
+        os.rename(mask_path+file, mask_path+new_file)
+        shutil.copy(mask_path+new_file, output+new_file)
+
+
 
 if __name__=="__main__":
-    #split_and_save("G:\Dataset\Split\Train\IMG", "G:\Dataset\Split\Train\MASK", "G:\Dataset\SplitWeight\Train")
-    split_and_save("G:\Dataset\Split\Validation\IMG", "G:\Dataset\Split\Validation\MASK", "G:\Dataset\SplitWeight\Validation")
+    split_and_save("C:\Dataset\Split\Train\IMG", "C:\Dataset\Split\Train\MASK", "C:\Dataset\SplitWeight\Train")
+    split_and_save("C:\Dataset\Split\Validation\IMG", "C:\Dataset\Split\Validation\MASK", "C:\Dataset\SplitWeight\Validation")
+    prepare_test_set("C:\Dataset\Split\Test\MASK\\", "C:\Dataset\Split\Test\\")
