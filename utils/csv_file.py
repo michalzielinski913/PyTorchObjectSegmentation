@@ -1,7 +1,8 @@
 import csv
-
+"""
+Simple wrapper for CSV files
+"""
 class CSV:
-
     def __init__(self, path, header):
         """
         Class constructor

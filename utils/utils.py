@@ -182,34 +182,13 @@ def metrics_calculation(y_pred, y_true):
     recall = smp.metrics.recall(tp, fp, fn, tn, reduction="micro-imagewise")
     return iou_score.cpu().detach().item(), f1_score.cpu().detach().item(), f2_score.cpu().detach().item(), accuracy.cpu().detach().item(), recall.cpu().detach().item()
 
-def _res_eval(x, y):
-    TP = 0
-    TN = 0
-    FP = 0
-    FN = 0
-    for i in range(11):
-        for j in range(512):
-            for k in range(512):
-                if round(x[i][j][k][0]) == True and y[i][j][k][0] == True:
-                    TP = TP + 1
-                elif round(x[i][j][k][0]) == False and y[i][j][k][0] == False:
-                    TN = TN + 1
-                elif round(x[i][j][k][0]) == True and y[i][j][k][0] == False:
-                    FP = FP + 1
-                elif round(x[i][j][k][0]) == False and y[i][j][k][0] == True:
-                    FN = FN + 1
-    return TP, TN, FP, FN
-
-def test_matrix(y_pred, y_true):
-    y_pred=y_pred[0].cpu().data.numpy()
-    y_pred[y_pred>=DETECTION_THRESHOLD]=1.
-    y_pred[y_pred<DETECTION_THRESHOLD]=0.
-    y_pred=y_pred.astype(int)
-    y_true=y_true[0].cpu().data.numpy().astype(int)
-    #TP, FN, FP, TN=
-
-
 def confusion_matrix(path, y_pred, y_true):
+    """
+    Generate Confusion matrix for given predictions
+    :param path: Path where matrix will be saved
+    :param y_pred: Predictions
+    :param y_true: Ground truth
+    """
     y_pred = y_pred[0].cpu().data.numpy()
     y_true = y_true[0].cpu().data.numpy()
     y_p=DETECTION_THRESHOLD<=y_pred

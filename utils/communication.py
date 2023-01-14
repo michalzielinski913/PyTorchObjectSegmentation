@@ -3,9 +3,17 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from secret import SENDER_EMAIL, TO_EMAIL, SENDER_PASSWORD, EMAIL_HOST
+"""
+This file is responsible for sending updates related to training process
+"""
 
-
-def send_email(subject="Server Status", content="Calculations finished"):
+def send_email(subject="Server Status Update", content="Calculations finished"):
+    """
+    Send information to the user using email
+    :param subject: Subject of the email by default 'Server Status Update'
+    :param content: Content of the message by default 'Calculations finished'
+    :return:
+    """
     sender_email =SENDER_EMAIL
     receiver_email = TO_EMAIL
     password = SENDER_PASSWORD

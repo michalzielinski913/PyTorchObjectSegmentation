@@ -10,6 +10,20 @@ from utils.csv_file import CSV
 
 def training_loop(model, optimizer, loss_function, loader: DataLoader, DEVICE: str, epoch_number: int,
                   train_values: CSV, class_train_values: CSV, total_class_lossess: list, train_loss: CSV):
+    """
+    Training routine for model training
+    :param model: Trained model
+    :param optimizer: Optimizer used for training
+    :param loss_function: Loss function
+    :param loader: Loader with train Data
+    :param DEVICE: Device which will be used (CPU/CUDA Device)
+    :param epoch_number: ID of the current epoch
+    :param train_values: CSV class object used to store training values
+    :param class_train_values: CSV class object used to store training values per class
+    :param total_class_lossess: Array to store total training loss per class
+    :param train_loss: Array to store total training loss per class
+    :return:
+    """
     # set the model in training mode
     model.train()
     # initialize the total training and validation loss
@@ -43,6 +57,19 @@ def training_loop(model, optimizer, loss_function, loader: DataLoader, DEVICE: s
 
 def validation_loop(model, loader, loss_function, DEVICE: str, epoch_number: int, validation_values, class_val_values,
                     total_val_class_lossess: list, val_loss: list):
+    """
+    Validation routine for model training
+    :param model: Validated model
+    :param loader: Loader with test data
+    :param loss_function: Loss function
+    :param DEVICE: Device which will be used (CPU/CUDA Device)
+    :param epoch_number: ID of the current epoch
+    :param validation_values: CSV class object used to store validation values
+    :param class_val_values: CSV class object used to store validation values per class
+    :param total_val_class_lossess: Array to store total validation loss per class
+    :param val_loss: Array to store total validation loss
+    :return:
+    """
     with torch.no_grad():
         # set the model in evaluation mode
         model.eval()
@@ -74,6 +101,16 @@ def validation_loop(model, loader, loss_function, DEVICE: str, epoch_number: int
         print("Validation loss avg: {:0.6f}".format(epoch_val_loss))
 
 def test_loop(model, loader, DEVICE, output_dir, epoch_number, model_name):
+    """
+    Test routine for model training
+    :param model: Evaluated model
+    :param loader: Data loader with test data
+    :param DEVICE: Device which will be used (CPU/CUDA Device)
+    :param output_dir: Path where results will be stored
+    :param epoch_number: ID of the current epoch
+    :param model_name: Model name in string format
+    """
+
     with torch.no_grad():
         epoch_dir = output_dir + "/epoch_" + str(epoch_number)
         if not os.path.isdir(epoch_dir):
