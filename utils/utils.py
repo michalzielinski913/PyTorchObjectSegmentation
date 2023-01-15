@@ -129,7 +129,7 @@ def visualize(filename, Image, Prediction, RealMask=None):
     :return:
     """
 
-    plt.figure(figsize=(16, 55))
+    plt.figure(figsize=(16, 50))
     columns = 3
     rows = NUM_CLASSES
     x=0
