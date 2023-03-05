@@ -5,7 +5,10 @@ from tqdm import tqdm
 import pickle
 
 from config import NUM_CLASSES
-
+"""
+Experimental file weighting each class to fight data imbalance.
+This idea was abandoned, left as proof of concept
+"""
 files = os.listdir("G:\Dataset\FullDataset\IMG")
 counter=0
 weights=[0]*NUM_CLASSES
