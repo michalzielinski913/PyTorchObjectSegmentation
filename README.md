@@ -3,7 +3,7 @@ Final project completed at the end of computer science course at Silesian Univer
 
 ## Dataset
 Dataset used for the training process was created by Silesian University of Technology students as a part of their curriculum. It contains about ~360 labelled aerial images with 11 classes in total.
-![plot](./Assets/example_image.png) 
+![plot](./assets/example_image.png) 
 Currently there are no plans to release the dataset to the public.
 
 ## Data preprocessing
